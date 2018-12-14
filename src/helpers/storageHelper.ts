@@ -1,5 +1,6 @@
-import { Credentials, S3, AWSError } from "aws-sdk";
 import * as url from "url";
+import { Storage } from "@google-cloud/storage";
+import { Credentials, S3 } from "aws-sdk";
 
 const theCredentials = new Credentials(
 	process.env.S3_ACCESS_KEY_ID as string,

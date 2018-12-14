@@ -1,7 +1,5 @@
 import { createConnection } from "typeorm";
 import * as entities from "./entities";
-import { rebuildDB } from "../main";
-
 export default async () => {
 	await createConnection({
 		type: "postgres",
@@ -9,8 +7,8 @@ export default async () => {
 		port: 5432,
 		username: process.env.DB_USERNAME,
 		password: process.env.DB_PASSWORD,
-		database: "schpoopDB",
-		synchronize: rebuildDB,
+		database: "postgres",
+		synchronize: false,
 		logging: false,
 		entities: [
 			entities.Comment,
