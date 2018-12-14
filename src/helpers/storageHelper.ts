@@ -1,7 +1,5 @@
 import * as url from "url";
 import { Storage } from "@google-cloud/storage";
-import { Credentials, S3 } from "aws-sdk";
-import { Stream } from "stream";
 
 const storage = new Storage({
 	projectId: process.env.GOOGLE_CLOUD_PROJECT,
@@ -10,18 +8,9 @@ const storage = new Storage({
 
 const bucket = storage.bucket("schpoopstorage");
 
-const theCredentials = new Credentials(
-	process.env.S3_ACCESS_KEY_ID as string,
-	process.env.S3_SECRET_ACCESS_KEY as string
-);
-
-const s3 = new S3({
-	credentials: theCredentials,
-	region: process.env.S3_REGION as string
-});
-
 export const pathFromUrl = (urlString: string) =>
-	url.parse(urlString).pathname!.substr(1);
+	// removes bucket name (+ 2 slashes) since that part of the path is always part of requests
+	url.parse(urlString).pathname!.substr(process.env.CLOUD_BUCKET!.length + 2);
 
 export const uploadImage = (
 	file: Buffer,
@@ -58,34 +47,4 @@ const getPublicUrl = (filename: string) => {
 	}/${filename}`;
 };
 
-export const deleteImage = (filePath: string) => {
-	return s3
-		.deleteObject({
-			Bucket: process.env.S3_BUCKET!,
-			Key: filePath
-		})
-		.promise();
-};
-
-// export const uploadImage = (
-// 	file: Buffer,
-// 	filePath: string,
-// 	contentType: string
-// ) =>
-// 	s3
-// 		.upload({
-// 			Bucket: process.env.S3_BUCKET!,
-// 			Key: filePath,
-// 			Body: file,
-// 			ContentType: contentType
-// 		})
-// 		.promise();
-
-// export const deleteImage = (filePath: string) => {
-// 	return s3
-// 		.deleteObject({
-// 			Bucket: process.env.S3_BUCKET!,
-// 			Key: filePath
-// 		})
-// 		.promise();
-// };
+export const deleteImage = (filePath: string) => bucket.file(filePath).delete();
